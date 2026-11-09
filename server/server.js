@@ -20,11 +20,12 @@ const db = mysql.createConnection({
 
 app.post('/add_expense', (req, res) => {
     const values = [
-        req.body.name,
-        req.body.amount,
+        req.body.expenseName,
+        req.body.expenseAmount,
+        req.body.expenseDate
     ];
 
-    const sql = 'INSERT INTO expenses (name, amount) VALUES (?, ?)';
+    const sql = 'INSERT INTO Expenses (expenseName, expenseAmount, expenseDate) VALUES (?, ?, ?)';
     db.query(sql, values, (err, result) => {
         if (err) {
             console.error(err);
@@ -36,7 +37,7 @@ app.post('/add_expense', (req, res) => {
 });
 
 app.get('/getexpenses', (req, res) => {
-    const sql = 'SELECT * FROM expenses';
+    const sql = 'SELECT * FROM Expenses';
     db.query(sql, (err, result) => {
         if (err) {
             console.error(err);
@@ -49,7 +50,7 @@ app.get('/getexpenses', (req, res) => {
 
 app.get('/getexpense/:id', (req, res) => {
     const id = req.params.id;
-    const sql = 'SELECT * FROM expenses WHERE id = ?';
+    const sql = 'SELECT * FROM Expenses WHERE expenseID = ?';
 
     db.query(sql, [id], (err, result) => {
         if (err) {
@@ -63,7 +64,7 @@ app.get('/getexpense/:id', (req, res) => {
 
 app.get('/getincome/:id', (req, res) => {
     const id = req.params.id;
-    const sql = 'SELECT * FROM income WHERE id = ?';
+    const sql = 'SELECT * FROM Incomes WHERE incomeID = ?';
 
     db.query(sql, [id], (err, result) => {
         if (err) {
@@ -77,8 +78,8 @@ app.get('/getincome/:id', (req, res) => {
 
 app.post('/editincome/:id', (req, res) => {
     const id = req.params.id;
-    const sql = 'UPDATE income SET amount = ? WHERE id = ?';
-    const values = [req.body.amount, id];
+    const sql = 'UPDATE Incomes SET incomeAmount = ? WHERE incomeID = ?';
+    const values = [req.body.incomeAmount, id];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -92,8 +93,8 @@ app.post('/editincome/:id', (req, res) => {
 
 app.post('/editexpense/:id', (req, res) => {
     const id = req.params.id;
-    const sql = 'UPDATE expenses SET name = ?, amount = ? WHERE id = ?';
-    const values = [req.body.name, req.body.amount, id];
+    const sql = 'UPDATE Expenses SET expenseName = ?, expenseAmount = ?, expenseDate = ? WHERE expenseID = ?';
+    const values = [req.body.expenseName, req.body.expenseAmount, req.body.expenseDate, id];
 
     db.query(sql, values, (err, result) => {
         if (err) {
@@ -107,7 +108,7 @@ app.post('/editexpense/:id', (req, res) => {
 
 app.delete('/deleteexpense/:id', (req, res) => {
     const id = req.params.id;
-    const sql = 'DELETE FROM expenses WHERE id = ?';
+    const sql = 'DELETE FROM Expenses WHERE expenseID = ?';
 
     db.query(sql, [id], (err, result) => {
         if (err) {

@@ -12,7 +12,10 @@ function Editexpense() {
     axios.get(`/getexpense/${id}`)
       .then((res) => {
         if (res.data) {
-          setData(res.data);
+          setData({
+            ...res.data,
+            expenseDate: res.data.expenseDate.slice(0, 10),
+          });
         }
       })
       .catch((err) => {
@@ -51,8 +54,8 @@ function Editexpense() {
                   name="name"
                   placeholder="Enter name"
                   required
-                  value={data.name}
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
+                  value={data.expenseName}
+                  onChange={(e) => setData({ ...data, expenseName: e.target.value })}
                 />
               </div>
               <div className="form-group">
@@ -64,8 +67,20 @@ function Editexpense() {
                   name="amount"
                   placeholder="Enter amount"
                   required
-                  value={data.amount}
-                  onChange={(e) => setData({ ...data, amount: e.target.value })}
+                  value={data.expenseAmount}
+                  onChange={(e) => setData({ ...data, expenseAmount: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="date">Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="date"
+                  name="date"
+                  required
+                  value={data.expenseDate}
+                  onChange={(e) => setData({ ...data, expenseDate: e.target.value })}
                 />
               </div>
               <div className='form-group my-3 text-center'>

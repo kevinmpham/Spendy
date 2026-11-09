@@ -5,8 +5,9 @@ import Navbar from '../Navbar'
 
 function Addexpense() {
     const [values, setValues] = React.useState({
-        name: '',
-        amount: ''
+        expenseName: '',
+        expenseAmount: '',
+        expenseDate: ''
     })
 
     const navigate = useNavigate()
@@ -36,7 +37,8 @@ function Addexpense() {
                         className="form-control" 
                         id="name" 
                         placeholder="Enter name" 
-                        required onChange={(e) => setValues({...values, name: e.target.value})} />
+                        required
+                        onChange={(e) => setValues({...values, expenseName: e.target.value})} />
                 </div>
                 <div className="form-group">
                     <label htmlFor="amount">Amount</label>
@@ -46,7 +48,16 @@ function Addexpense() {
                         id="amount" 
                         placeholder="Enter amount" 
                         required 
-                        onChange={(e) => setValues({...values, amount: e.target.value})} />
+                        onChange={(e) => setValues({...values, expenseAmount: e.target.value})} />
+                </div>
+                <div classname="form-group">
+                    <label htmlFor="date">Date</label>
+                    <input 
+                        type="date" 
+                        className="form-control" 
+                        id="date" 
+                        required 
+                        onChange={(e) => setValues({...values, expenseDate: e.target.value})} />
                 </div>
                 <br />
                 <div className='form-group my-3 text-center'>

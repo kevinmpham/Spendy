@@ -1,6 +1,14 @@
 .App {
   min-height: 100vh;
-  background-color: #FFF4D2;
+  background-color: #EAF2F0;
+}
+
+.expense-table tbody tr:nth-child(odd) > * {
+  --bs-table-bg: #c9d7f3;
+}
+
+.expense-table tbody tr:nth-child(even) > * {
+  --bs-table-bg: #e8f1f5;
 }
 
 .App-logo {
@@ -37,3 +45,25 @@
     transform: rotate(360deg);
   }
 }
+
+/*
+ * Globals
+ */
+
+
+/* Custom default button */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus {
+  color: #333;
+  text-shadow: none; /* Prevent inheritance from `body` */
+}
+
+/*
+ * Base structure
+ */
+
+.cover-container {
+  max-width: 42em;
+}
+

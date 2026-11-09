@@ -4,10 +4,18 @@ import { useEffect, useState } from 'react'
 import Navbar from '../Navbar'
 import { Link } from 'react-router-dom'
 
+
+
+
 function Dashboard() {
     const [data, setData] = React.useState(null);
     const [incomeData, setIncomeData] = React.useState(null);
     const [deleted, setDeleted] = useState(true);
+    const [sortBy, setSortBy] = useState('date');
+    const [selectedMonth, setSelectedMonth] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    });
 
     useEffect(() => {
         if(deleted){
@@ -35,10 +43,52 @@ function Dashboard() {
 
         axios.delete(`/deleteexpense/${id}`)
         .then((res) => {
-            setData(data.filter((expense) => expense.id !== id))
+            setData((currentData) => currentData.filter((expense) => expense.expenseID !== id))
         })
-        .catch((err) => console.log(err))
+        .catch((err) => {
+            console.error('Error deleting expense:', err);
+            window.alert(err.response?.data?.message || 'Unable to delete expense. Please try again.');
+        })
     }
+
+    function formatExpenseDate(value) {
+        const [year, month, day] = value.slice(0, 10).split('-');
+        return `${month}-${day}-${year}`;
+    }
+
+    const monthOptions = Array.from({ length: 12 }, (_, index) => {
+        const date = new Date();
+        date.setDate(1);
+        date.setMonth(date.getMonth() - index);
+        const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+        return {
+            value,
+            label: date.toLocaleString(undefined, { month: 'long', year: 'numeric' }),
+        };
+    });
+
+    const monthlyExpenses = data
+        ? data.filter((expense) => expense.expenseDate.slice(0, 7) === selectedMonth)
+        : [];
+
+    const sortedExpenses = [...monthlyExpenses].sort((a, b) => {
+        switch (sortBy) {
+            case 'name':
+                return a.expenseName.localeCompare(b.expenseName);
+            case 'amount':
+                return Number(a.expenseAmount) - Number(b.expenseAmount);
+            case 'date':
+                return a.expenseDate.slice(0, 10).localeCompare(b.expenseDate.slice(0, 10));
+            default:
+                return 0;
+        }
+    });
+
+    const totalExpenses = monthlyExpenses.reduce(
+        (sum, expense) => sum + Number(expense.expenseAmount),
+        0
+    );
 
   return (
     <>
@@ -46,56 +96,80 @@ function Dashboard() {
     <div className="container min-vh-100 d-flex flex-column align-items-center pt-4">
         <h1>Dashboard</h1>
         <div className="container">
-            <div className="row g-3">
+            <div className="row gs-3">
                 <div className="col-sm">
                     <div className="card h-100 rounded-3 text-center p-3">
-                        <h2>Total Expenses</h2>
+                        <h2>Monthly Expenses</h2>
                         {data && (
-                            <p>${parseFloat(data.reduce((sum, expense) => sum + parseFloat(expense.amount), 0)).toFixed(2)}</p>
+                            <p>${totalExpenses.toFixed(2)}</p>
                         )}
                     </div>
                 </div>
                 <div className="col-sm">
                     <div className="card h-100 rounded-3 text-center p-3">
-                        <h2>Income</h2>
+                        <h2>Monthly Income</h2>
                         {incomeData && (
-                            <p>${parseFloat(incomeData.amount).toFixed(2)}</p>
+                            <p>${parseFloat(incomeData.incomeAmount).toFixed(2)}</p>
                         )}
                         {incomeData && (
-                            <Link to={`/editincome/${incomeData.id}`} className="btn btn-warning">Edit Income</Link>
+                            <Link to={`/editincome/${incomeData.incomeID}`} className="btn btn-warning">Edit Income</Link>
                         )}
                     </div>
                 </div>
                 <div className="col-sm">
                     <div className="card h-100 rounded-3 text-center p-3">
-                        <h2>Balance</h2>
+                        <h2>Remaining Balance</h2>
                         {incomeData && data && (
-                            <p>${parseFloat(incomeData.amount - data.reduce((sum, expense) => sum + parseFloat(expense.amount), 0)).toFixed(2)}</p>
+                            <p>${(Number(incomeData.incomeAmount) - totalExpenses).toFixed(2)}</p>
                         )}
                     </div>
                 </div>
             </div>
         </div>
-        <h2 className="mt-4">All Expenses</h2>
-        <div className="mb-3">
+        <h2 className="mt-4">Expenses</h2>
+        <div className="mb-3 d-flex align-items-center gap-2">
             <Link to="/addexpense" className="btn btn-success">Add Expense</Link>
+            <label htmlFor="expense-month" className="mb-0">Month</label>
+            <select
+                id="expense-month"
+                className="form-select w-auto"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+                {monthOptions.map((month) => (
+                    <option key={month.value} value={month.value}>{month.label}</option>
+                ))}
+            </select>
+            <label htmlFor="expense-sort" className="mb-0">Sort by</label>
+            <select
+                id="expense-sort"
+                className="form-select w-auto"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+            >
+                <option value="date">Date</option>
+                <option value="name">Name</option>
+                <option value="amount">Amount</option>
+            </select>
         </div>
-        <table className="table table-bordered w-auto text-center">
+        <table className="table table-bordered w-100 text-center expense-table">
             <thead>
                 <tr>
                     <th>Name</th>
                     <th>Amount</th>
+                    <th>Date</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {data && data.map((expense) => (
-                    <tr key={expense.id}>
-                        <td>{expense.name}</td>
-                        <td>${parseFloat(expense.amount).toFixed(2)}</td>
+                {sortedExpenses.map((expense) => (
+                    <tr key={expense.expenseID}>
+                        <td>{expense.expenseName}</td>
+                        <td>${parseFloat(expense.expenseAmount).toFixed(2)}</td>
+                        <td>{formatExpenseDate(expense.expenseDate)}</td>
                         <td>
-                            <Link to={`/editexpense/${expense.id}`} className="btn btn-warning">Edit</Link>
-                            <button className="btn btn-danger" onClick={() => handleDelete(expense.id)}>Delete</button>
+                            <Link to={`/editexpense/${expense.expenseID}`} className="btn btn-warning">Edit</Link>
+                            <button className="btn btn-danger" onClick={() => handleDelete(expense.expenseID)}>Delete</button>
                         </td>
                     </tr>
                 ))}

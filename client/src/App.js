@@ -7,6 +7,7 @@ import Addexpense from './components/Addexpense'
 import Editexpense from './components/Editexpense'
 import Dashboard from './components/Dashboard'
 import Editincome from './components/Editincome'
+import Help from './components/Help'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/addexpense" element={<Addexpense />} />
           <Route path="/editexpense/:id" element={<Editexpense />} />
           <Route path="/editincome/:id" element={<Editincome />} />
+          <Route path="/help" element={<Help />} />
         </Routes>
       </BrowserRouter>
     </div>
